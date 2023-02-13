@@ -45,23 +45,46 @@ func NewMainRouter() *echo.Echo {
 	// 「/signup」（サインアップページ）でユーザーを登録した場合
 	e.POST("/authenticate", echo.WrapHandler(http.HandlerFunc(controllers.Authenticate)))
 
+	todos := e.Group("/todos")
 	// 「/todos」（todo一覧ページ）に訪れた場合
-	e.GET("/todos", echo.WrapHandler(http.HandlerFunc(controllers.Index)))
+	todos.GET("", echo.WrapHandler(http.HandlerFunc(controllers.Index)))
 
 	// 「/todos/new」（todo作成）に訪れた場合
-	e.GET("/todos/new", echo.WrapHandler(http.HandlerFunc(controllers.TodoNew)))
+	todos.GET("/new", echo.WrapHandler(http.HandlerFunc(controllers.TodoNew)))
 
 	// 「/todos/save」（todo作成ページ）でtodoを登録した場合
-	e.POST("/todos/save", echo.WrapHandler(http.HandlerFunc(controllers.TodoSave)))
+	todos.POST("/save", echo.WrapHandler(http.HandlerFunc(controllers.TodoSave)))
 
 	// 「/todos/edit/」（todo編集ページ）に訪れた場合
-	e.GET("/todos/edit/", echo.WrapHandler(http.HandlerFunc(controllers.TodoEdit)))
+	todos.GET("/edit/", echo.WrapHandler(http.HandlerFunc(controllers.TodoEdit)))
 
 	// 「/todos/update/」（todo編集ページ）でtodoを編集した場合
-	e.POST("/todos/update/", echo.WrapHandler(http.HandlerFunc(controllers.TodoUpdate)))
+	todos.POST("/update/", echo.WrapHandler(http.HandlerFunc(controllers.TodoUpdate)))
+	// 今後フロントエンドのReactで実装して、PUTで送信されるようにする（現在はHTMLだからGETかPOSTのみ）
+	// todos.PUT("/update/", echo.WrapHandler(http.HandlerFunc(controllers.TodoUpdate)))
 
 	// 「/todos/delete/」（todo編集ページ）でtodoを編集した場合
-	e.GET("/todos/delete/", echo.WrapHandler(http.HandlerFunc(controllers.TodoDelete)))
+	todos.GET("/delete/", echo.WrapHandler(http.HandlerFunc(controllers.TodoDelete)))
+	// 今後フロントエンドのReactで実装して、DELETEで送信されるようにする（現在はHTMLだからGETかPOSTのみ）
+	// todos.DELETE("/delete/", echo.WrapHandler(http.HandlerFunc(controllers.TodoDelete)))
+
+	// // 「/todos」（todo一覧ページ）に訪れた場合
+	// e.GET("/todos", echo.WrapHandler(http.HandlerFunc(controllers.Index)))
+
+	// // 「/todos/new」（todo作成）に訪れた場合
+	// e.GET("/todos/new", echo.WrapHandler(http.HandlerFunc(controllers.TodoNew)))
+
+	// // 「/todos/save」（todo作成ページ）でtodoを登録した場合
+	// e.POST("/todos/save", echo.WrapHandler(http.HandlerFunc(controllers.TodoSave)))
+
+	// // 「/todos/edit/」（todo編集ページ）に訪れた場合
+	// e.GET("/todos/edit/", echo.WrapHandler(http.HandlerFunc(controllers.TodoEdit)))
+
+	// // 「/todos/update/」（todo編集ページ）でtodoを編集した場合
+	// e.POST("/todos/update/", echo.WrapHandler(http.HandlerFunc(controllers.TodoUpdate)))
+
+	// // 「/todos/delete/」（todo編集ページ）でtodoを編集した場合
+	// e.GET("/todos/delete/", echo.WrapHandler(http.HandlerFunc(controllers.TodoDelete)))
 
 	return e
 }
