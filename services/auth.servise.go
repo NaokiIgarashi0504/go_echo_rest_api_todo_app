@@ -45,7 +45,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) (result bool) {
 
 	// エラーの場合はログを吐く
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	// emailの情報をからユーザー情報を取得する
@@ -53,7 +53,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) (result bool) {
 
 	// エラーの場合はログを吐き、ログインページに遷移
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 		http.Redirect(w, r, "/login", 302)
 	}
 
@@ -64,7 +64,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) (result bool) {
 
 		// エラーの場合はログを吐く
 		if err != nil {
-			log.Panicln(err)
+			log.Fatalln(err)
 		}
 
 		// cookieの作成
@@ -93,7 +93,7 @@ func Logout(w http.ResponseWriter, r *http.Request) (result bool) {
 
 	if err != nil {
 		// エラーの場合はログを吐いて、falseを返す
-		log.Panicln(err)
+		log.Fatalln(err)
 		return false
 	}
 

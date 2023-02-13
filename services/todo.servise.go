@@ -15,7 +15,7 @@ func Index(w http.ResponseWriter, r *http.Request, sess models.Session) (userDat
 
 	// エラーの場合はログを吐く
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	// ユーザーに紐づくtodoを取得
@@ -35,7 +35,7 @@ func TodoSave(w http.ResponseWriter, r *http.Request, sess models.Session) (err 
 
 	// エラーの場合はログを吐く
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	// セッションの情報からユーザーの情報を取得
@@ -43,7 +43,7 @@ func TodoSave(w http.ResponseWriter, r *http.Request, sess models.Session) (err 
 
 	// エラーの場合はログを吐く
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	// POSTされたtodoの内容を変数contentに代入
@@ -51,7 +51,7 @@ func TodoSave(w http.ResponseWriter, r *http.Request, sess models.Session) (err 
 
 	// 新たなtodoを保存
 	if err := repositories.CreateTodo(content, user.ID); err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	// エラーを返す
@@ -65,7 +65,7 @@ func TodoEdit(w http.ResponseWriter, r *http.Request, sess models.Session, id st
 
 	// エラーの場合はログを吐く
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	// 渡されたIDを数値型にする
@@ -76,7 +76,7 @@ func TodoEdit(w http.ResponseWriter, r *http.Request, sess models.Session, id st
 
 	// エラーの場合はログを吐く
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	return editTodo
@@ -89,7 +89,7 @@ func TodoUpdate(w http.ResponseWriter, r *http.Request, sess models.Session, id 
 
 	// エラーの場合はログを吐く
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	// POSTされたtodoの内容を変数contentに代入
@@ -103,7 +103,7 @@ func TodoUpdate(w http.ResponseWriter, r *http.Request, sess models.Session, id 
 
 	// todoのupdateの実行
 	if err := repositories.UpdateTodo(newTodoData); err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 }
 
@@ -114,7 +114,7 @@ func TodoDelete(w http.ResponseWriter, r *http.Request, sess models.Session, id 
 
 	// エラーの場合はログを吐く
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	// 渡されたIDを数値型にする
@@ -125,6 +125,6 @@ func TodoDelete(w http.ResponseWriter, r *http.Request, sess models.Session, id 
 
 	// todoのdeleteの実行
 	if err := repositories.DeleteTodo(deleteTodo); err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 }

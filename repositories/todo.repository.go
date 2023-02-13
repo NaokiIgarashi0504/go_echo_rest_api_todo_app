@@ -16,7 +16,7 @@ func GetTodosByUser(sess models.Session, userId int) (todos []models.Todo, err e
 
 	// エラーの場合はログを吐く
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	// 取得したtodoを回す
@@ -33,7 +33,7 @@ func GetTodosByUser(sess models.Session, userId int) (todos []models.Todo, err e
 
 		// エラーの場合はログを吐く
 		if err != nil {
-			log.Panicln(err)
+			log.Fatalln(err)
 		}
 
 		// todosに追加
@@ -60,7 +60,7 @@ func CreateTodo(content string, userId int) (err error) {
 
 	// エラーの場合はログを吐く
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	// エラーを返す
@@ -96,7 +96,7 @@ func UpdateTodo(newTodoData *models.Todo) error {
 
 	// エラーの場合はログを吐く
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	// エラーを返す

@@ -67,7 +67,7 @@ func CreateSession(user models.User) (session models.Session, err error) {
 
 	// エラーの場合はログを吐く
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 
 	// 作成したセッションを取得する、select文を定義
