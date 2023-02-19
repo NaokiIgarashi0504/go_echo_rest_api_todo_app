@@ -21,12 +21,13 @@ func main() {
 	// service層
 	authService := services.NewAuthService(authRepo)
 	todoService := services.NewTodoService(todoRepo, authRepo)
+	baseService := services.NewBaseService(authRepo)
 	// authService := services.NewAuthService(authRepo)
 	// todoService := services.NewTodoService(todoRepo, todoLogic, responseLogic, todoValidate)
 
 	// controller層
-	authController := controllers.NewAuthController(authService)
-	todoContoroller := controllers.NewTodoController(todoService, authService)
+	authController := controllers.NewAuthController(authService, baseService)
+	todoContoroller := controllers.NewTodoController(todoService, authService, baseService)
 	// appController := controllers.NewAppController()
 	// authController := controllers.NewAuthController(authService)
 	// todoContoroller := controllers.NewTodoController(todoService, authService)

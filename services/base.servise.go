@@ -8,6 +8,18 @@ import (
 	"text/template"
 )
 
+type BaseService interface {
+	Session(w http.ResponseWriter, r *http.Request) (sess models.Session, err error)
+}
+
+type baseService struct {
+	ar repositories.AuthRepository
+}
+
+func NewBaseService(ar repositories.AuthRepository) BaseService {
+	return &baseService{ar}
+}
+
 // htmlファイルを表示する処理
 func GenerateHTML(w http.ResponseWriter, data interface{}, filenames ...string) {
 	// filesを定義
@@ -27,7 +39,7 @@ func GenerateHTML(w http.ResponseWriter, data interface{}, filenames ...string) 
 }
 
 // セッションをチェックする処理
-func Session(w http.ResponseWriter, r *http.Request) (sess models.Session, err error) {
+func (bs *baseService) Session(w http.ResponseWriter, r *http.Request) (sess models.Session, err error) {
 	// 設定しているcookieを取得
 	cookie, err := r.Cookie("_cookie")
 
@@ -37,7 +49,7 @@ func Session(w http.ResponseWriter, r *http.Request) (sess models.Session, err e
 		sess = models.Session{UUID: cookie.Value}
 
 		// セッションのチェック
-		if ok, _ := repositories.CheckSession(&sess); !ok {
+		if ok, _ := bs.ar.CheckSession(&sess); !ok {
 			// チェックで正しくなかった場合は、無効なセッション設定
 			err = fmt.Errorf("Invalid session")
 		}

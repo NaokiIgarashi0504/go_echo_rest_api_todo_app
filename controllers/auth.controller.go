@@ -15,16 +15,17 @@ type AuthController interface {
 
 type authController struct {
 	as services.AuthService
+	bs services.BaseService
 }
 
-func NewAuthController(as services.AuthService) AuthController {
-	return &authController{as}
+func NewAuthController(as services.AuthService, bs services.BaseService) AuthController {
+	return &authController{as, bs}
 }
 
 // サインアップページを表示する処理
 func (ac *authController) ShowSignUpFrom(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
-	_, err := services.Session(w, r)
+	_, err := ac.bs.Session(w, r)
 
 	if err != nil {
 		// セッションがない場合
@@ -54,7 +55,7 @@ func (ac *authController) CreateUser(w http.ResponseWriter, r *http.Request) {
 // ログインページを表示する処理
 func (ac *authController) ShowLoginFrom(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
-	_, err := services.Session(w, r)
+	_, err := ac.bs.Session(w, r)
 
 	if err != nil {
 		// セッションがない場合

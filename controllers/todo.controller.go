@@ -18,16 +18,17 @@ type TodoController interface {
 type todoController struct {
 	ts services.TodoService
 	as services.AuthService
+	bs services.BaseService
 }
 
-func NewTodoController(ts services.TodoService, as services.AuthService) TodoController {
-	return &todoController{ts, as}
+func NewTodoController(ts services.TodoService, as services.AuthService, bs services.BaseService) TodoController {
+	return &todoController{ts, as, bs}
 }
 
 // トップページの表示の処理
 func (tc *todoController) Top(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
-	_, err := services.Session(w, r)
+	_, err := tc.bs.Session(w, r)
 
 	if err != nil {
 		// セッションがない場合
@@ -43,7 +44,7 @@ func (tc *todoController) Top(w http.ResponseWriter, r *http.Request) {
 // todo一覧ページの処理
 func (tc *todoController) Index(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
-	sess, err := services.Session(w, r)
+	sess, err := tc.bs.Session(w, r)
 
 	if err != nil {
 		// セッションがない場合
@@ -62,7 +63,7 @@ func (tc *todoController) Index(w http.ResponseWriter, r *http.Request) {
 // todo作成画面を表示する処理
 func (tc *todoController) TodoNew(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
-	_, err := services.Session(w, r)
+	_, err := tc.bs.Session(w, r)
 
 	if err != nil {
 		// セッションがない場合は、ログインページに遷移
@@ -77,7 +78,7 @@ func (tc *todoController) TodoNew(w http.ResponseWriter, r *http.Request) {
 // todoの作成の処理
 func (tc *todoController) TodoSave(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
-	sess, err := services.Session(w, r)
+	sess, err := tc.bs.Session(w, r)
 
 	if err != nil {
 		// セッションがない場合は、ログインページに遷移
@@ -94,7 +95,7 @@ func (tc *todoController) TodoSave(w http.ResponseWriter, r *http.Request) {
 // todoの編集画面を表示する処理
 func (tc *todoController) TodoEdit(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
-	sess, err := services.Session(w, r)
+	sess, err := tc.bs.Session(w, r)
 
 	if err != nil {
 		// セッションがない場合は、ログインページに遷移
@@ -112,7 +113,7 @@ func (tc *todoController) TodoEdit(w http.ResponseWriter, r *http.Request) {
 // todoの編集の処理
 func (tc *todoController) TodoUpdate(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
-	sess, err := services.Session(w, r)
+	sess, err := tc.bs.Session(w, r)
 
 	if err != nil {
 		// セッションがない場合は、ログインページに遷移
@@ -130,7 +131,7 @@ func (tc *todoController) TodoUpdate(w http.ResponseWriter, r *http.Request) {
 // todoの削除の処理
 func (tc *todoController) TodoDelete(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
-	sess, err := services.Session(w, r)
+	sess, err := tc.bs.Session(w, r)
 
 	if err != nil {
 		// セッションがない場合は、ログインページに遷移
