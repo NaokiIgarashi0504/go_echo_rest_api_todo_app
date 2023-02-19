@@ -7,8 +7,22 @@ import (
 	"net/http"
 )
 
+type AuthService interface {
+	CreateUser(w http.ResponseWriter, r *http.Request) (err error)
+	Authenticate(w http.ResponseWriter, r *http.Request) (result bool)
+	Logout(w http.ResponseWriter, r *http.Request) (result bool)
+}
+
+type authService struct {
+	ar repositories.AuthRepository
+}
+
+func NewAuthService(ar repositories.AuthRepository) AuthService {
+	return &authService{ar}
+}
+
 // ユーザー登録の処理
-func CreateUser(w http.ResponseWriter, r *http.Request) (err error) {
+func (as *authService) CreateUser(w http.ResponseWriter, r *http.Request) (err error) {
 	// ParseFormでformの内容を解析
 	err = r.ParseForm()
 
@@ -25,7 +39,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) (err error) {
 	}
 
 	// auth.repository.goのCreateUserに変数userを渡す
-	if err := repositories.CreateUser(&user); err != nil {
+	if err := as.ar.CreateUser(&user); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -39,7 +53,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) (err error) {
 }
 
 // ユーザーの認証の処理
-func Authenticate(w http.ResponseWriter, r *http.Request) (result bool) {
+func (as *authService) Authenticate(w http.ResponseWriter, r *http.Request) (result bool) {
 	// フォームの情報を取得
 	err := r.ParseForm()
 
@@ -49,7 +63,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) (result bool) {
 	}
 
 	// emailの情報をからユーザー情報を取得する
-	user, err := repositories.GetUserByEmail(r.PostFormValue("email"))
+	user, err := as.ar.GetUserByEmail(r.PostFormValue("email"))
 
 	// エラーの場合はログを吐き、ログインページに遷移
 	if err != nil {
@@ -60,7 +74,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) (result bool) {
 	if user.PassWord == models.Encrypt(r.PostFormValue("password")) {
 		// パスワードが正しい場合
 		// セッションを作成
-		session, err := repositories.CreateSession(user)
+		session, err := as.ar.CreateSession(user)
 
 		// エラーの場合はログを吐く
 		if err != nil {
@@ -87,7 +101,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) (result bool) {
 }
 
 // ログアウトの処理
-func Logout(w http.ResponseWriter, r *http.Request) (result bool) {
+func (as *authService) Logout(w http.ResponseWriter, r *http.Request) (result bool) {
 	// cookieを取得
 	cookie, err := r.Cookie("_cookie")
 
@@ -103,7 +117,7 @@ func Logout(w http.ResponseWriter, r *http.Request) (result bool) {
 		session := models.Session{UUID: cookie.Value}
 
 		// セッションを削除
-		repositories.DeleteSessionByUUID(session)
+		as.ar.DeleteSessionByUUID(session)
 	}
 
 	// セッションの削除が完了

@@ -1,13 +1,33 @@
 package repositories
 
 import (
+	"database/sql"
 	"go_echo_rest_api/models"
 	"log"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
+type AuthRepository interface {
+	CreateUser(user *models.User) (err error)
+	GetUserByEmail(email string) (user models.User, err error)
+	CreateSession(user models.User) (session models.Session, err error)
+	DeleteSessionByUUID(sess models.Session) (err error)
+	GetUserBySession(sess models.Session) (user models.User, err error)
+	CheckSession(sess *models.Session) (valid bool, err error)
+}
+
+type authRepository struct {
+	db *sql.DB
+}
+
+func NewAuthRepository(db *sql.DB) AuthRepository {
+	return &authRepository{db}
+}
+
 // ユーザー登録の処理
-func CreateUser(user *models.User) (err error) {
+func (ar *authRepository) CreateUser(user *models.User) (err error) {
 	// ユーザーを作成する、insert文を定義
 	cmd := `insert into users (
 		uuid,
@@ -17,7 +37,7 @@ func CreateUser(user *models.User) (err error) {
 		created_at) values (?, ?, ?, ?, ?)`
 
 	// insert文を実行
-	_, err = models.Db.Exec(cmd,
+	_, err = ar.db.Exec(cmd,
 		models.CreateUUID(),
 		user.Name,
 		user.Email,
@@ -34,12 +54,12 @@ func CreateUser(user *models.User) (err error) {
 }
 
 // 入力されたemailからユーザー情報を取得する関数
-func GetUserByEmail(email string) (user models.User, err error) {
+func (ar *authRepository) GetUserByEmail(email string) (user models.User, err error) {
 	// ユーザー情報を取得するコマンドを定義
 	cmd := `SELECT id, uuid, name, email, password, created_at FROM users WHERE email = ?`
 
 	// ユーザー情報を取得するコマンドを実行
-	err = models.Db.QueryRow(cmd, email).Scan(
+	err = ar.db.QueryRow(cmd, email).Scan(
 		&user.ID,
 		&user.UUID,
 		&user.Name,
@@ -51,7 +71,7 @@ func GetUserByEmail(email string) (user models.User, err error) {
 }
 
 // セッションを作成する関数
-func CreateSession(user models.User) (session models.Session, err error) {
+func (ar *authRepository) CreateSession(user models.User) (session models.Session, err error) {
 	// セッションを定義
 	session = models.Session{}
 
@@ -63,7 +83,7 @@ func CreateSession(user models.User) (session models.Session, err error) {
 		created_at) VALUES (?, ?, ?, ?)`
 
 	// insert文を実行
-	_, err = models.Db.Exec(cmd1, models.CreateUUID(), user.Email, user.ID, time.Now())
+	_, err = ar.db.Exec(cmd1, models.CreateUUID(), user.Email, user.ID, time.Now())
 
 	// エラーの場合はログを吐く
 	if err != nil {
@@ -74,7 +94,7 @@ func CreateSession(user models.User) (session models.Session, err error) {
 	cmd2 := `SELECT id, uuid, email, user_id, created_at FROM sessions WHERE user_id = ? and email = ?`
 
 	// select文を実行して、変数sessionに代入
-	err = models.Db.QueryRow(cmd2, user.ID, user.Email).Scan(
+	err = ar.db.QueryRow(cmd2, user.ID, user.Email).Scan(
 		&session.ID,
 		&session.UUID,
 		&session.Email,
@@ -86,12 +106,12 @@ func CreateSession(user models.User) (session models.Session, err error) {
 }
 
 // ログアウトの関数
-func DeleteSessionByUUID(sess models.Session) (err error) {
+func (ar *authRepository) DeleteSessionByUUID(sess models.Session) (err error) {
 	// セッションを削除する、delete文を定義
 	cmd := `DELETE FROM sessions WHERE uuid = ?`
 
 	// コマンドを実行
-	_, err = models.Db.Exec(cmd, sess.UUID)
+	_, err = ar.db.Exec(cmd, sess.UUID)
 
 	// エラーの場合はログを吐く
 	if err != nil {
@@ -102,7 +122,7 @@ func DeleteSessionByUUID(sess models.Session) (err error) {
 	return err
 }
 
-func GetUserBySession(sess models.Session) (user models.User, err error) {
+func (ar *authRepository) GetUserBySession(sess models.Session) (user models.User, err error) {
 	// ユーザーを定義
 	user = models.User{}
 
@@ -110,7 +130,7 @@ func GetUserBySession(sess models.Session) (user models.User, err error) {
 	cmd := `SELECT id, uuid, name, email, created_at FROM users WHERE id = ?`
 
 	// select文を実行して、変数userに代入
-	err = models.Db.QueryRow(cmd, sess.UserID).Scan(
+	err = ar.db.QueryRow(cmd, sess.UserID).Scan(
 		&user.ID,
 		&user.UUID,
 		&user.Name,
@@ -122,12 +142,12 @@ func GetUserBySession(sess models.Session) (user models.User, err error) {
 }
 
 // セッションに存在するかチェックする関数
-func CheckSession(sess *models.Session) (valid bool, err error) {
+func (ar *authRepository) CheckSession(sess *models.Session) (valid bool, err error) {
 	// セッションの情報を取得するコマンドを定義
 	cmd := `SELECT id, uuid, email, user_id, created_at FROM sessions WHERE uuid = ?`
 
 	// セッションの情報を取得するコマンドの実行
-	err = models.Db.QueryRow(cmd, sess.UUID).Scan(
+	err = ar.db.QueryRow(cmd, sess.UUID).Scan(
 		&sess.ID,
 		&sess.UUID,
 		&sess.Email,
