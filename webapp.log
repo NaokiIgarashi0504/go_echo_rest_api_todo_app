@@ -75,3 +75,7 @@
 2023/02/12 22:34:27 todo.servise.go:26: sql: no rows in result set
 2023/02/12 22:35:22 todo.servise.go:26: sql: no rows in result set
 2023/02/12 22:37:06 todo.servise.go:25: sql: no rows in result set
+2023/02/19 16:10:57 auth.servise.go:56: sql: no rows in result set
+2023/02/19 16:20:42 main.go:22: sql: unknown driver "sqlite3" (forgotten import?)
+2023/02/19 16:44:00 main.go:20: sql: unknown driver "sqlite3" (forgotten import?)
+2023/02/19 16:50:34 connect.go:29: sql: unknown driver "sqlite3" (forgotten import?)

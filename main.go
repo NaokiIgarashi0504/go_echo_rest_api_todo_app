@@ -2,13 +2,17 @@ package main
 
 import (
 	"fmt"
-	"go_echo_rest_api/models"
-	"go_echo_rest_api/routers"
+	"go_echo_rest_api/db"
 )
 
 func main() {
-	fmt.Println(models.Db)
+	// DB接続
+	db := db.Init()
 
-	router := routers.NewMainRouter()
-	router.Logger.Fatal(router.Start(":8080"))
+	fmt.Println(db)
+
+	// 下記3行はDIを踏まえた実装前のコード
+	// fmt.Println(models.Db)
+	// router := routers.NewMainRouter()
+	// router.Logger.Fatal(router.Start(":8080"))
 }
