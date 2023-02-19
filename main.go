@@ -13,16 +13,19 @@ func main() {
 
 	// repository層
 	authRepo := repositories.NewAuthRepository(db)
+	todoRepo := repositories.NewTodoRepository(db)
 	// userRepo := repositories.NewAuthRepository(db)
 	// todoRepo := repositories.NewTodoRepository(db)
 
 	// service層
 	authService := services.NewAuthService(authRepo)
+	todoService := services.NewTodoService(todoRepo)
 	// authService := services.NewAuthService(authRepo)
 	// todoService := services.NewTodoService(todoRepo, todoLogic, responseLogic, todoValidate)
 
 	fmt.Println(authRepo)
 	fmt.Println(authService)
+	fmt.Println(todoRepo)
 
 	// 下記3行はDIを踏まえた実装前のコード
 	// fmt.Println(models.Db)

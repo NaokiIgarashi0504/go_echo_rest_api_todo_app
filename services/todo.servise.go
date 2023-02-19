@@ -8,10 +8,27 @@ import (
 	"strconv"
 )
 
+type TodoService interface {
+	Index(w http.ResponseWriter, r *http.Request, sess models.Session) (userData models.User)
+	TodoSave(w http.ResponseWriter, r *http.Request, sess models.Session) (err error)
+	TodoEdit(w http.ResponseWriter, r *http.Request, sess models.Session, id string) (todo models.Todo)
+	TodoUpdate(w http.ResponseWriter, r *http.Request, sess models.Session, id string)
+	TodoDelete(w http.ResponseWriter, r *http.Request, sess models.Session, id string)
+}
+
+type todoService struct {
+	ar repositories.AuthRepository
+	tr repositories.TodoRepository
+}
+
+func NewTodoService(ar repositories.AuthRepository, tr repositories.TodoRepository) TodoService {
+	return &todoService{ar, tr}
+}
+
 // todo一覧の処理
-func Index(w http.ResponseWriter, r *http.Request, sess models.Session) (userData models.User) {
+func (ts *todoService) Index(w http.ResponseWriter, r *http.Request, sess models.Session) (userData models.User) {
 	// セッションの情報からユーザーの情報を取得
-	user, err := repositories.GetUserBySession(sess)
+	user, err := ts.ar.GetUserBySession(sess)
 
 	// エラーの場合はログを吐く
 	if err != nil {
@@ -19,7 +36,7 @@ func Index(w http.ResponseWriter, r *http.Request, sess models.Session) (userDat
 	}
 
 	// ユーザーに紐づくtodoを取得
-	todos, _ := repositories.GetTodosByUser(sess, user.ID)
+	todos, _ := ts.tr.GetTodosByUser(sess, user.ID)
 
 	// 取得したtodosを、ユーザーのTodosに代入
 	user.Todos = todos
@@ -29,7 +46,7 @@ func Index(w http.ResponseWriter, r *http.Request, sess models.Session) (userDat
 }
 
 // todoを作成する処理
-func TodoSave(w http.ResponseWriter, r *http.Request, sess models.Session) (err error) {
+func (ts *todoService) TodoSave(w http.ResponseWriter, r *http.Request, sess models.Session) (err error) {
 	// フォームの情報を取得
 	err = r.ParseForm()
 
@@ -39,7 +56,7 @@ func TodoSave(w http.ResponseWriter, r *http.Request, sess models.Session) (err 
 	}
 
 	// セッションの情報からユーザーの情報を取得
-	user, err := repositories.GetUserBySession(sess)
+	user, err := ts.ar.GetUserBySession(sess)
 
 	// エラーの場合はログを吐く
 	if err != nil {
@@ -50,7 +67,7 @@ func TodoSave(w http.ResponseWriter, r *http.Request, sess models.Session) (err 
 	content := r.PostFormValue("content")
 
 	// 新たなtodoを保存
-	if err := repositories.CreateTodo(content, user.ID); err != nil {
+	if err := ts.tr.CreateTodo(content, user.ID); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -59,9 +76,9 @@ func TodoSave(w http.ResponseWriter, r *http.Request, sess models.Session) (err 
 }
 
 // todoの編集画面を表示する処理
-func TodoEdit(w http.ResponseWriter, r *http.Request, sess models.Session, id string) (todo models.Todo) {
+func (ts *todoService) TodoEdit(w http.ResponseWriter, r *http.Request, sess models.Session, id string) (todo models.Todo) {
 	// セッションの情報からユーザーの情報を取得
-	_, err := repositories.GetUserBySession(sess)
+	_, err := ts.ar.GetUserBySession(sess)
 
 	// エラーの場合はログを吐く
 	if err != nil {
@@ -72,7 +89,7 @@ func TodoEdit(w http.ResponseWriter, r *http.Request, sess models.Session, id st
 	todoId, _ := strconv.Atoi(id)
 
 	// todoを取得する
-	editTodo, err := repositories.GetTodo(todoId)
+	editTodo, err := ts.tr.GetTodo(todoId)
 
 	// エラーの場合はログを吐く
 	if err != nil {
@@ -83,9 +100,9 @@ func TodoEdit(w http.ResponseWriter, r *http.Request, sess models.Session, id st
 }
 
 // todoの編集の処理
-func TodoUpdate(w http.ResponseWriter, r *http.Request, sess models.Session, id string) {
+func (ts *todoService) TodoUpdate(w http.ResponseWriter, r *http.Request, sess models.Session, id string) {
 	// セッションの情報からユーザーの情報を取得
-	user, err := repositories.GetUserBySession(sess)
+	user, err := ts.ar.GetUserBySession(sess)
 
 	// エラーの場合はログを吐く
 	if err != nil {
@@ -102,15 +119,15 @@ func TodoUpdate(w http.ResponseWriter, r *http.Request, sess models.Session, id 
 	newTodoData := &models.Todo{ID: todoId, Content: content, UserID: user.ID}
 
 	// todoのupdateの実行
-	if err := repositories.UpdateTodo(newTodoData); err != nil {
+	if err := ts.tr.UpdateTodo(newTodoData); err != nil {
 		log.Fatalln(err)
 	}
 }
 
 // todoの削除の処理
-func TodoDelete(w http.ResponseWriter, r *http.Request, sess models.Session, id string) {
+func (ts *todoService) TodoDelete(w http.ResponseWriter, r *http.Request, sess models.Session, id string) {
 	// セッションの情報からユーザーの情報を取得
-	_, err := repositories.GetUserBySession(sess)
+	_, err := ts.ar.GetUserBySession(sess)
 
 	// エラーの場合はログを吐く
 	if err != nil {
@@ -121,10 +138,10 @@ func TodoDelete(w http.ResponseWriter, r *http.Request, sess models.Session, id 
 	todoId, _ := strconv.Atoi(id)
 
 	// todoを取得する
-	deleteTodo, err := repositories.GetTodo(todoId)
+	deleteTodo, err := ts.tr.GetTodo(todoId)
 
 	// todoのdeleteの実行
-	if err := repositories.DeleteTodo(deleteTodo); err != nil {
+	if err := ts.tr.DeleteTodo(deleteTodo); err != nil {
 		log.Fatalln(err)
 	}
 }
