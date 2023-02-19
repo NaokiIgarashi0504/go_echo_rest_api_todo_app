@@ -17,12 +17,12 @@ type TodoService interface {
 }
 
 type todoService struct {
-	ar repositories.AuthRepository
 	tr repositories.TodoRepository
+	ar repositories.AuthRepository
 }
 
-func NewTodoService(ar repositories.AuthRepository, tr repositories.TodoRepository) TodoService {
-	return &todoService{ar, tr}
+func NewTodoService(tr repositories.TodoRepository, ar repositories.AuthRepository) TodoService {
+	return &todoService{tr, ar}
 }
 
 // todo一覧の処理

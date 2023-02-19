@@ -6,8 +6,23 @@ import (
 	"net/http"
 )
 
+type AuthController interface {
+	ShowSignUpFrom(w http.ResponseWriter, r *http.Request)
+	CreateUser(w http.ResponseWriter, r *http.Request)
+	ShowLoginFrom(w http.ResponseWriter, r *http.Request)
+	Authenticate(w http.ResponseWriter, r *http.Request)
+}
+
+type authController struct {
+	as services.AuthService
+}
+
+func NewAuthController(as services.AuthService) AuthController {
+	return &authController{as}
+}
+
 // サインアップページを表示する処理
-func ShowSignUpFrom(w http.ResponseWriter, r *http.Request) {
+func (ac *authController) ShowSignUpFrom(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
 	_, err := services.Session(w, r)
 
@@ -23,9 +38,9 @@ func ShowSignUpFrom(w http.ResponseWriter, r *http.Request) {
 }
 
 // ユーザー登録の処理
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func (ac *authController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	// auth.servise.goのCreateUserを呼ぶ
-	err := services.CreateUser(w, r)
+	err := ac.as.CreateUser(w, r)
 
 	// エラーの場合はログを吐く
 	if err != nil {
@@ -37,7 +52,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // ログインページを表示する処理
-func ShowLoginFrom(w http.ResponseWriter, r *http.Request) {
+func (ac *authController) ShowLoginFrom(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
 	_, err := services.Session(w, r)
 
@@ -53,9 +68,9 @@ func ShowLoginFrom(w http.ResponseWriter, r *http.Request) {
 }
 
 // ログイン処理
-func Authenticate(w http.ResponseWriter, r *http.Request) {
+func (ac *authController) Authenticate(w http.ResponseWriter, r *http.Request) {
 	// auth.servise.goのAuthenticateを呼ぶ
-	result := services.Authenticate(w, r)
+	result := ac.as.Authenticate(w, r)
 
 	if result {
 		// 認証成功の場合は、トップページに遷移
@@ -66,9 +81,9 @@ func Authenticate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Logout(w http.ResponseWriter, r *http.Request) {
+func (ac *authController) Logout(w http.ResponseWriter, r *http.Request) {
 	// auth.servise.goのAuthenticateを呼ぶ
-	result := services.Logout(w, r)
+	result := ac.as.Logout(w, r)
 
 	if result {
 		// セッションの削除が完了したらログイン画面にリダイレクト

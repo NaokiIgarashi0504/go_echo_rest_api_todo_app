@@ -5,8 +5,27 @@ import (
 	"net/http"
 )
 
+type TodoController interface {
+	Top(w http.ResponseWriter, r *http.Request)
+	Index(w http.ResponseWriter, r *http.Request)
+	TodoNew(w http.ResponseWriter, r *http.Request)
+	TodoSave(w http.ResponseWriter, r *http.Request)
+	TodoEdit(w http.ResponseWriter, r *http.Request)
+	TodoUpdate(w http.ResponseWriter, r *http.Request)
+	TodoDelete(w http.ResponseWriter, r *http.Request)
+}
+
+type todoController struct {
+	ts services.TodoService
+	as services.AuthService
+}
+
+func NewTodoController(ts services.TodoService, as services.AuthService) TodoController {
+	return &todoController{ts, as}
+}
+
 // トップページの表示の処理
-func Top(w http.ResponseWriter, r *http.Request) {
+func (tc *todoController) Top(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
 	_, err := services.Session(w, r)
 
@@ -22,7 +41,7 @@ func Top(w http.ResponseWriter, r *http.Request) {
 }
 
 // todo一覧ページの処理
-func Index(w http.ResponseWriter, r *http.Request) {
+func (tc *todoController) Index(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
 	sess, err := services.Session(w, r)
 
@@ -33,7 +52,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// セッションがある場合
 		// todo.servise.goのIndexを呼ぶ
-		userData := services.Index(w, r, sess)
+		userData := tc.ts.Index(w, r, sess)
 
 		// htmlファイルを表示する関数を呼ぶ
 		services.GenerateHTML(w, userData, "layout", "private_navbar", "index")
@@ -41,7 +60,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 // todo作成画面を表示する処理
-func TodoNew(w http.ResponseWriter, r *http.Request) {
+func (tc *todoController) TodoNew(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
 	_, err := services.Session(w, r)
 
@@ -56,7 +75,7 @@ func TodoNew(w http.ResponseWriter, r *http.Request) {
 }
 
 // todoの作成の処理
-func TodoSave(w http.ResponseWriter, r *http.Request) {
+func (tc *todoController) TodoSave(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
 	sess, err := services.Session(w, r)
 
@@ -66,14 +85,14 @@ func TodoSave(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// セッションがある場合
 		// todo.servise.goのTodoSaveを呼ぶ
-		services.TodoSave(w, r, sess)
+		tc.ts.TodoSave(w, r, sess)
 
 		http.Redirect(w, r, "/todos", 302)
 	}
 }
 
 // todoの編集画面を表示する処理
-func TodoEdit(w http.ResponseWriter, r *http.Request) {
+func (tc *todoController) TodoEdit(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
 	sess, err := services.Session(w, r)
 
@@ -83,7 +102,7 @@ func TodoEdit(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// セッションがある場合
 		// todo.servise.goのTodoEditを呼ぶ
-		todo := services.TodoEdit(w, r, sess, r.FormValue("id"))
+		todo := tc.ts.TodoEdit(w, r, sess, r.FormValue("id"))
 
 		// htmlファイルを表示する関数を呼ぶ
 		services.GenerateHTML(w, todo, "layout", "private_navbar", "todo_edit")
@@ -91,7 +110,7 @@ func TodoEdit(w http.ResponseWriter, r *http.Request) {
 }
 
 // todoの編集の処理
-func TodoUpdate(w http.ResponseWriter, r *http.Request) {
+func (tc *todoController) TodoUpdate(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
 	sess, err := services.Session(w, r)
 
@@ -101,7 +120,7 @@ func TodoUpdate(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// セッションがある場合
 		// todo.servise.goのTodoUpdateを呼ぶ
-		services.TodoUpdate(w, r, sess, r.FormValue("id"))
+		tc.ts.TodoUpdate(w, r, sess, r.FormValue("id"))
 
 		// htmlファイルを表示する関数を呼ぶ
 		http.Redirect(w, r, "/todos", 302)
@@ -109,7 +128,7 @@ func TodoUpdate(w http.ResponseWriter, r *http.Request) {
 }
 
 // todoの削除の処理
-func TodoDelete(w http.ResponseWriter, r *http.Request) {
+func (tc *todoController) TodoDelete(w http.ResponseWriter, r *http.Request) {
 	// セッションチェック
 	sess, err := services.Session(w, r)
 
@@ -119,7 +138,7 @@ func TodoDelete(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// セッションがある場合
 		// todo.servise.goのTodoUpdateを呼ぶ
-		services.TodoDelete(w, r, sess, r.FormValue("id"))
+		tc.ts.TodoDelete(w, r, sess, r.FormValue("id"))
 
 		// htmlファイルを表示する関数を呼ぶ
 		http.Redirect(w, r, "/todos", 302)

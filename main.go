@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go_echo_rest_api/controllers"
 	"go_echo_rest_api/db"
 	"go_echo_rest_api/repositories"
 	"go_echo_rest_api/services"
@@ -19,9 +20,16 @@ func main() {
 
 	// service層
 	authService := services.NewAuthService(authRepo)
-	todoService := services.NewTodoService(todoRepo)
+	todoService := services.NewTodoService(todoRepo, authRepo)
 	// authService := services.NewAuthService(authRepo)
 	// todoService := services.NewTodoService(todoRepo, todoLogic, responseLogic, todoValidate)
+
+	// controller層
+	authController := controllers.NewAuthController(authService)
+	todoContoroller := controllers.NewTodoController(todoService, authService)
+	// appController := controllers.NewAppController()
+	// authController := controllers.NewAuthController(authService)
+	// todoContoroller := controllers.NewTodoController(todoService, authService)
 
 	fmt.Println(authRepo)
 	fmt.Println(authService)
