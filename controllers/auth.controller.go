@@ -11,6 +11,7 @@ type AuthController interface {
 	CreateUser(w http.ResponseWriter, r *http.Request)
 	ShowLoginFrom(w http.ResponseWriter, r *http.Request)
 	Authenticate(w http.ResponseWriter, r *http.Request)
+	Logout(w http.ResponseWriter, r *http.Request)
 }
 
 type authController struct {
