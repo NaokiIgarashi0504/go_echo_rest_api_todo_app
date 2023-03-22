@@ -47,7 +47,6 @@ func main() {
 	// router := mainRouter.StartWebServer()
 	// fmt.Println(router)
 	// router.Start(":8080")
-	// 音量呂布カルマどっち通.StartWebServer()音量呂布カルマどっち
 
 	// 下記3行はDIを踏まえた実装前のコード
 	// fmt.Println(models.Db)
